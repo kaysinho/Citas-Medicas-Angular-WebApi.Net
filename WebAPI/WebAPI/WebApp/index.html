@@ -1,0 +1,275 @@
+﻿<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Citas Medicas</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+
+    <!-- JavaScript for: jQuery, angular, materialize, and angular-materialize. All of which are needed. -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/js/materialize.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-materialize/0.2.2/angular-materialize.min.js"></script>
+
+
+</head>
+
+<body class="blue-grey lighten-5" ng-app="myApp" ng-controller="myCtrl">
+    <nav class="nav-extended  blue darken-1">
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo">Citas Medicas</a>
+            <a href="#" data-activates="mobile-demo" class="button-collapse">
+                <i class="material-icons">menu</i>
+            </a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li>
+                    <a href="../" target="_blank">API</a>
+                </li>
+                <li>
+                    <a href="https://www.linkedin.com/in/jhonantan-plata/" target="_blank">Desarrollador</a>
+                </li>
+                <li>
+                    <a href="http://materializecss.com/" target="_blank">MaterializeCSS</a>
+                </li>
+            </ul>
+            <ul class="side-nav" id="mobile-demo">
+                <li>
+                    <a href="../" target="_blank">API</a>
+                </li>
+                <li>
+                    <a href="https://www.linkedin.com/in/jhonantan-plata/" target="_blank">Desarrollador</a>
+                </li>
+                <li>
+                    <a href="http://materializecss.com/" target="_blank">MaterializeCSS</a>
+                </li>
+            </ul>
+        </div>
+        <div class="nav-content">
+            <ul class="tabs tabs-transparent">
+                <li class="tab">
+                    <a class="active" href="#citas">Crear Cita</a>
+                </li>
+                <li class="tab">
+                    <a href="#calendario">Calendario de Citas</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <!--Citas-->
+    <div id="citas" class="col s12">
+        <div class="row"></div>
+        <div class="row">
+            <div class="col m10 offset-m1">
+
+                <div class="card">
+                    <div class="row"></div>
+                    <div class="row">
+                        <form class="col s12">
+                            <div class="row">
+                                <div class="input-field col m2">
+                                    <a class="btn-floating  waves-effect waves-light green modal-trigger" title="Buscar paciente" href="#modal1">
+                                        <i class="material-icons">search</i>
+                                    </a>
+                                </div>
+                                <div class="input-field col s3">
+                                    <input ng-model="cita.paciente.documento" type="text" class="validate" disabled>
+                                    <label for="icon_prefix">Documento Paciente</label>
+                                </div>
+                                <div class="input-field col s3">
+                                    <input ng-model="cita.paciente.nombre" type="text" disabled>
+                                    <label for="icon_telephone">Nombre</label>
+                                </div>
+                                <div class="input-field col s4">
+                                    <input ng-model="cita.paciente.apellidos" type="text" disabled>
+                                    <label for="icon_telephone">Apellidos</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s6">
+                                    <i class="material-icons prefix">verified_user</i>
+                                    <select ng-model="cita.especialidad" ng-change="filtrarDoctores()" ng-options="esp.specialty_type for esp in data.especialidades | orderBy:'specialty_type'">
+                                        <option value="" disabled selected>Seleccione</option>
+                                    </select>
+                                    <label>Seleccione la Especialidad</label>
+                                </div>
+                                <div class="input-field col s6" ng-disabled="cita.especialidad.length==0">
+                                    <i class="material-icons prefix">account_circle</i>
+                                    <select ng-model="cita.doctor" ng-options="doc.first_name + ' ' + doc.last_name for doc in data.doctoresPorEspecialidad | orderBy:'first_name'">
+                                        <option value="" disabled selected>Seleccione</option>
+                                    </select>
+                                    <label>Seleccione un Doctor</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s3">
+                                    <i class="material-icons prefix">date_range</i>
+                                    <input ng-model="cita.fecha" type="text" class="datepicker">
+                                    <label for="icon_prefix">Fecha de la cita</label>
+                                </div>
+                                <div class="input-field col s3">
+                                    <i class="material-icons prefix">timer</i>
+                                    <select ng-model="cita.hora" ng-options="hora as hora for hora in data.horarios" ng-change="seleccionarHoraFinal()">
+                                        <option value="" disabled selected>Seleccione</option>
+                                    </select>
+                                    <label>Hora desde</label>
+                                </div>
+                                <div class="input-field col s3">
+                                    <i class="material-icons prefix">timer_off</i>
+                                    <input ng-model="cita.horaFin" type="text" disabled />
+                                    <label for="icon_prefix">Hasta</label>
+                                </div>
+
+                                <div class="input-field col s3">
+                                    <a class="waves-effect waves-light btn green" ng-click="GuardarCita()">
+                                        <i class="material-icons right">check</i>Guardar</a>
+                                        <a class="btn-floating  waves-effect waves-light red modal-trigger" ng-click="limpiarFormulario()" title="Cancelar">
+                                                <i class="material-icons">close</i>
+                                            </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Calendario de Citas-->
+    <div id="calendario" class="col s12">
+        <div class="row">
+            <div class="col m10 offset-m1">
+                <div class="row"></div>
+                <div class="card" style="min-height: 500px">
+                    <div class="row">
+                        <div class="col s12">
+                            <table class="striped">
+                                <thead>
+                                    <tr>
+                                        <th>Paciente</th>
+                                        <th>Doctor</th>
+                                        <th>Fecha</th>
+                                        <th>Hora</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr ng-repeat="cita in data.citas">
+                                        <td>{{getPatientName(cita.idPaciente)}}</td>
+                                        <td>{{getDoctorName(cita.idMedico)}}</td>
+                                        <td>{{cita.fecha | date:'yyyy-MM-dd'}}</td>
+                                        <td>desde: {{cita.horaInicio}}, hasta: {{cita.horaFin}}</td>
+                                        <td>{{getEstadoCita(cita.estado)}}</td>
+                                        <td>
+                                            <a class="btn-floating btn waves-effect waves-light blue" ng-click="seleccionarCita(cita.id, false)"><i class="material-icons" title="Editar">edit</i></a>
+                                            <a ng-if="cita.estado" class="btn-floating btn waves-effect waves-light orange" ng-click="cancelarCita(cita.id)"><i class="material-icons " title="Cancelar">close</i></a>
+                                            <a class="btn-floating btn waves-effect waves-light red" ng-click="eliminarCita(cita.id)"><i class="material-icons " title="Eliminar">delete_forever</i></a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pacientes -->
+    <div id="modal1" class="modal modal-fixed-footer">
+        <div class="modal-content">
+            <h4 class="center-align">Pacientes</h4>
+            <table class="striped">
+                <thead>
+                    <tr>
+                        <th>Documento</th>
+                        <th>Nombre</th>
+                        <th>Genero</th>
+                        <th>Ciudad</th>
+                        <th>Seleccionar</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr ng-repeat="paciente in data.pacientes">
+                        <td>{{paciente.identification}}</td>
+                        <td>{{paciente.first_name + ' ' + paciente.last_name}}</td>
+                        <td>{{paciente.genre}}</td>
+                        <td>{{paciente.city_birth}}</td>
+                        <td>
+                            <a class="btn-floating blue" ng-click="seleccionarPaciente(paciente.id)" title="Seleccionar a {{paciente.first_name + ' ' + paciente.last_name}}">
+                                <i class="material-icons">check</i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <a class="modal-action modal-close waves-effect waves-light btn red" ng-click="limpiarPacienteCita()">
+                <i class="material-icons right">close</i>Cancelar</a>
+        </div>
+    </div>
+
+    <!--Modal Mensajes-->
+    <div id="modalMensajes" class="modal bottom-sheet">
+        <div class="modal-content">
+            <h4 class="green-text">Exitoso!</h4>
+            <span ng-bind="mensajes.exitoso"></span>
+        </div>
+    </div>
+
+    <!--Modal Mensajes Error-->
+    <div id="modalErrores" class="modal bottom-sheet">
+        <div class="modal-content">
+            <h4 class="red-text">Error!</h4>
+            <span ng-bind="mensajes.error"></span>
+        </div>
+    </div>
+
+        <!--Modal Mensajes Validaciones-->
+        <div id="modalValidaciones" class="modal bottom-sheet">
+                <div class="modal-content">
+                    <h4 class="orange-text">Atencion!</h4>
+                    <span ng-bind="mensajes.validacion"></span>
+                </div>
+            </div>
+
+    <!--Import App-->
+    <script type="text/javascript" src="/WebApp/app.js"></script>
+    <script>
+
+        //Inicializar componentes de Materialize
+        $('select').material_select();
+        $('.modal').modal();
+        $(".button-collapse").sideNav();
+        $('.datepicker').pickadate({
+            monthsFull: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+            monthsShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+            weekdaysFull: ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'],
+            weekdaysShort: ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
+            labelMonthNext: 'Siguiente mes',
+            labelMonthPrev: 'Mes anterior',
+            labelMonthSelect: 'Seleccionar un mes',
+            labelYearSelect: 'Seleccionar un año',
+            format: 'yyyy-mm-dd',
+            min: new Date(),
+            selectMonths: true, // Creates a dropdown to control month
+            selectYears: 15, // Creates a dropdown of 15 years to control year,
+            today: 'Hoy',
+            clear: 'Cancelar',
+            close: 'Ok',
+            closeOnSelect: false // Close upon selecting a date,
+        });
+
+    </script>
+</body>
+
+</html>
